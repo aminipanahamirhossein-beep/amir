@@ -23,6 +23,40 @@ docker compose -f docker-compose.base44.yml logs -f web
   `docker run --rm -v "$PWD/web:/w" -w /w node:22 npm install --package-lock-only`.
   `npm ci` fails if the lockfile and `package.json` disagree.
 
+## The cinematic hero
+
+- The home hero (`HeroSection` + `HeroOverlay` + `useCinematicHero`) **seeks** the
+  clip instead of playing it: the section is a `320vh` scroll track (`210vh` under
+  768px) and progress is `-section.top / (sectionHeight - innerHeight)`, clamped to
+  0–1. That single value drives `video.currentTime` and all four text layers, which
+  is why scrolling up restores the earlier frames and states exactly.
+- Do **not** give the video `autoplay`, `loop` or a play call — scrolling is the
+  only driver. The engine also skips seeks finer than one 24fps frame, and paints
+  from one `requestAnimationFrame` loop so React never re-renders while scrolling.
+- The stage is pinned with `top: var(--header-height)` and
+  `height: calc(100vh - var(--header-height))`. That is deliberate: the hero is the
+  first section, so a `top: 0` stage would hang `--header-height` past the fold at
+  scroll 0 and cut the bottom-anchored type off on phones.
+- The clip is a 640×480, 24fps, 6.04s H.264 file (145 frames) remuxed with
+  `-c copy -an -movflags +faststart` — never re-encoded. The poster is its first
+  frame; regenerate both with:
+  ```bash
+  docker run --rm -v /tmp:/t -v "$PWD:/w" -w /w --entrypoint ffmpeg \
+    jrottenberg/ffmpeg:6-ubuntu -v error -y -i /tmp/atelier-hero.mp4 \
+    -map 0:v:0 -c copy -an -movflags +faststart /w/web/public/video/atelier-hero.mp4
+  docker run --rm -v /tmp:/t -v "$PWD:/w" -w /w --entrypoint ffmpeg \
+    jrottenberg/ffmpeg:6-ubuntu -v error -y -ss 0 -i /tmp/atelier-hero.mp4 \
+    -frames:v 1 -q:v 4 /w/web/public/video/atelier-hero-poster.jpg
+  ```
+- Like every other piece of architectural imagery, the clip is desaturated in CSS
+  (`filter: grayscale(100%)`), never pre-processed. Delete that one declaration in
+  `styles/hero.css` for colour footage.
+- Verifying it: scroll the track and read `video.currentTime` (it should track
+  `progress × duration`), `document.querySelector('.hero-cinematic').dataset.active`
+  (0–3) and each `.hero-state`'s inline `opacity`. Because the frames are the real
+  proof, draw the video into a small canvas and compare pixel means between two
+  scroll positions.
+
 ## Database
 
 - There is **no migration step**: `api/src/schema.js` runs idempotent

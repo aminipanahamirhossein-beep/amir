@@ -22,15 +22,48 @@ export const studio = {
   location: 'Copenhagen, Denmark',
 };
 
+/**
+ * Hero: a film the visitor scrubs with the scroll.
+ *
+ * `video` is the timeline behind the hero; `poster` is its first frame, used
+ * before the clip is ready and whenever the sequence cannot run (reduced
+ * motion). Each `states` entry owns a quarter of the scroll timeline, in order,
+ * and is crossfaded over the footage — `cta` is optional and always points at
+ * the Featured Projects section.
+ */
 export const hero = {
-  eyebrow: 'Architecture / Design / Build',
-  titleLines: ['Shaping', 'Better Spaces', 'for a Brighter', 'Tomorrow'],
-  paragraph:
-    'We design thoughtful, sustainable and human-centered spaces that inspire and endure.',
-  cta: 'Explore Our Work',
-  image: '/images/hero-atelier-house.jpg',
-  imageAlt:
-    'Monochrome render of a contemporary multi-level house with white concrete slabs and dark glazing',
+  video: '/video/atelier-hero.mp4',
+  poster: '/video/atelier-hero-poster.jpg',
+  posterAlt:
+    'Monochrome render of a contemporary house whose white floor plates lift away from the structure',
+  states: [
+    {
+      id: 'introduction',
+      eyebrow: 'Architecture / Design / Build',
+      titleLines: ['Shaping Better', 'Spaces'],
+      paragraph: 'We design thoughtful, sustainable and human-centered spaces.',
+      cta: 'Explore Our Work',
+    },
+    {
+      id: 'philosophy',
+      eyebrow: 'Design With Purpose',
+      titleLines: ['Form Meets', 'Function'],
+      paragraph: 'Every line, material and space has a purpose.',
+    },
+    {
+      id: 'experience',
+      eyebrow: 'Space / Light / Material',
+      titleLines: ['Built Around', 'Life'],
+      paragraph: 'Creating meaningful spaces through light, proportion and material.',
+    },
+    {
+      id: 'statement',
+      eyebrow: 'Atelier Architecture Studio',
+      titleLines: ['Designed to', 'Endure'],
+      paragraph: 'Architecture for a better tomorrow.',
+      cta: 'Discover Our Projects',
+    },
+  ],
 };
 
 export const about = {

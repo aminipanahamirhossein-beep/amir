@@ -13,15 +13,17 @@ contact routes.
 ```
 web/                      React app (Vite dev server, published on port 3000)
   public/images/          architectural photography (local, committed)
-  src/components/         Header, MobileNavigation, HeroSection, AboutSection,
+  public/video/           hero film (scroll-scrubbed) + its first-frame poster
+  src/components/         Header, MobileNavigation, HeroSection, HeroOverlay, AboutSection,
                           Statistics, FeaturedProjects, ProjectCard,
                           ServicesSection, ServiceItem, ContactCTA,
                           ContactForm, Footer, SectionIndex, ArrowLink, Logo
   src/pages/              Home, ProjectsPage, ProjectDetail, StudioPage,
                           ContactPage, NotFound
   src/data/               site.js (studio copy, nav, services) and projects.js
-  src/hooks/              useReveal (entrance animation), useActiveSection
-  src/styles/             tokens.css → base.css → sections.css → pages.css
+  src/hooks/              useReveal (entrance animation), useActiveSection,
+                          useCinematicHero (hero scroll timeline)
+  src/styles/             tokens.css → base.css → sections.css → hero.css → pages.css
 api/                      Express contact API + schema bootstrap
 docker-compose.base44.yml Development stack (web, api, postgres)
 ```
@@ -39,6 +41,22 @@ docker-compose.base44.yml Development stack (web, api, postgres)
 Header and footer navigation point at the home-page sections (`Home`, `Projects`,
 `About`, `Services`, `Contact`) and scroll to them smoothly; the section links in
 each section lead to the dedicated pages.
+
+## The hero
+
+The home hero is a film the visitor scrubs with the page scroll. A full-height
+stage is pinned inside a 320vh scroll track (210vh on phones); the scroll
+position inside that track is normalised to a 0–1 progress value that drives both
+the clip's `currentTime` and four crossfaded text states, so the sequence runs
+forwards and backwards with the scroll. The clip is never autoplayed — it is
+seeked.
+
+- `useCinematicHero` owns the timeline (one `requestAnimationFrame` loop, no
+  React re-render while scrolling); `HeroOverlay` renders the states; the copy,
+  clip path and states live in `site.js` (`hero`).
+- Both hero call-to-actions scroll to Featured Projects.
+- With `prefers-reduced-motion` the hero renders the film's poster frame and the
+  first state, and the page scrolls normally.
 
 ## Running locally
 
@@ -141,6 +159,10 @@ URL. Each file maps to the source photo it came from:
 | `detail-white-concrete.jpg` | `images.unsplash.com/photo-1628012209120-d9db7abf7eab` |
 | `detail-concrete-facade.jpg` | `images.unsplash.com/photo-1615406020658-6c4b805f1f30` |
 | `detail-courtyard-pool.jpg` | `images.unsplash.com/photo-1670589953882-b94c9cb380f5` |
+
+The hero film in `web/public/video/` is supplied by the studio
+(`atelier-hero.mp4`, 640×480, 24 fps, 6 s); `atelier-hero-poster.jpg` is its first
+frame, shown before the clip is ready.
 
 ## Deployment
 

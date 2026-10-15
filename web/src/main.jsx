@@ -5,6 +5,7 @@ import '@fontsource-variable/inter';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/sections.css';
+import './styles/hero.css';
 import './styles/pages.css';
 import App from './App.jsx';
 

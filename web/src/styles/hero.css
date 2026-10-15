@@ -1,0 +1,216 @@
+/* Cinematic hero.
+   Layers, bottom to top: page background → video scene → veil and scrim →
+   text states → the sticky site header (z-index 60, defined in sections.css).
+
+   The section itself is a tall scroll track; the stage inside it is pinned for
+   the length of that track, so the whole clip is played by scrolling. */
+
+.hero-cinematic {
+  --hero-travel: 320vh;
+  position: relative;
+  height: var(--hero-travel);
+  background-color: var(--color-bg);
+}
+
+/* Reduced motion: the same content as a single poster frame, no timeline. */
+.hero-cinematic[data-static] {
+  height: 100vh;
+}
+
+/* Pinned just below the header for the whole scroll track, so the stage box
+   always matches the visible area — no sliver of the scene behind the header
+   and no part of the type pushed past the fold. */
+.hero-cinematic__stage {
+  position: sticky;
+  top: var(--header-height);
+  height: calc(100vh - var(--header-height));
+  overflow: hidden;
+}
+
+/* ------------------------------------------------- layer 2 — the scene */
+
+.hero-cinematic__media {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding: clamp(1rem, 3vh, 2rem) var(--gutter) clamp(1.25rem, 5vh, 3rem);
+}
+
+/* The model's complete silhouette stays visible: the source is 4:3, the box
+   matches it and the clip is never stretched, cropped or re-proportioned. */
+.hero-cinematic__video {
+  height: 100%;
+  width: auto;
+  max-width: 62%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  /* Monochrome, like every other architectural image on the site. */
+  filter: grayscale(100%) contrast(1.06);
+}
+
+/* -------------------------------------------- layer 3 — readability */
+
+.hero-cinematic__veil,
+.hero-cinematic__scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Soft edge blending: the brightest frames arrive late in the sequence, so the
+   scene sits a little deeper as the timeline advances. */
+.hero-cinematic__veil {
+  background: radial-gradient(120% 100% at 68% 48%, rgba(5, 5, 5, 0) 52%, rgba(5, 5, 5, 0.6) 100%);
+  opacity: calc(0.55 + 0.45 * var(--hero-progress, 0));
+}
+
+/* Localised gradients only — the type is never given a card to sit on. */
+.hero-cinematic__scrim {
+  background:
+    linear-gradient(90deg, var(--color-bg) 0%, var(--color-bg) 36%, rgba(5, 5, 5, 0) 46%),
+    linear-gradient(180deg, rgba(5, 5, 5, 0.9) 0%, rgba(5, 5, 5, 0) 14%);
+  opacity: calc(0.72 + 0.28 * var(--hero-progress, 0));
+}
+
+/* ------------------------------------------ layer 4 — the text states */
+
+.hero-states {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  align-items: center;
+  justify-items: start;
+  padding: clamp(1rem, 3vh, 2rem) var(--gutter) clamp(1.25rem, 5vh, 3rem);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* One entrance for the overlay as a whole; the scroll timeline owns the
+     layers inside it, so nothing fights for the same properties. */
+  .hero-states {
+    animation: hero-enter 1000ms cubic-bezier(0.22, 0.61, 0.36, 1) 80ms both;
+  }
+}
+
+@keyframes hero-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+}
+
+.hero-state {
+  grid-area: 1 / 1; /* every state shares one box, so crossfades never jump */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: min(28rem, 34%);
+  will-change: opacity, transform;
+}
+
+/* The opening state shows before the timeline has painted its first value. */
+.hero-state:first-child {
+  opacity: 1;
+}
+
+.hero-state:not(:first-child) {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.hero-state__title {
+  font-size: var(--fs-display);
+  font-weight: 300;
+  line-height: var(--lh-display);
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  text-shadow: 0 2px 30px rgba(5, 5, 5, 0.65);
+}
+
+.hero-state__title span {
+  display: block;
+}
+
+.hero-state__copy {
+  max-width: 34ch;
+  text-shadow: 0 2px 22px rgba(5, 5, 5, 0.7);
+}
+
+.hero-state__eyebrow,
+.hero-state__cta {
+  text-shadow: 0 1px 14px rgba(5, 5, 5, 0.75);
+}
+
+.hero-state__cta {
+  align-self: flex-start;
+  margin-top: var(--space-xs);
+}
+
+/* Tablet and below: the scene keeps the upper half and the type sits on the
+   darkened lower half, so the architecture is never covered. */
+@media (max-width: 1023px) {
+  .hero-cinematic__media {
+    justify-content: center;
+    padding-bottom: 50vh;
+  }
+
+  .hero-cinematic__video {
+    max-width: 100%;
+  }
+
+  .hero-cinematic__veil {
+    background: radial-gradient(
+      130% 100% at 50% 34%,
+      rgba(5, 5, 5, 0) 48%,
+      rgba(5, 5, 5, 0.6) 100%
+    );
+  }
+
+  .hero-cinematic__scrim {
+    background:
+      linear-gradient(
+        0deg,
+        var(--color-bg) 0%,
+        rgba(5, 5, 5, 0.95) 24%,
+        rgba(5, 5, 5, 0.6) 44%,
+        rgba(5, 5, 5, 0) 66%
+      ),
+      linear-gradient(180deg, rgba(5, 5, 5, 0.9) 0%, rgba(5, 5, 5, 0) 14%);
+  }
+
+  .hero-states {
+    align-items: end;
+    padding-bottom: clamp(2rem, 6vh, 3.5rem);
+  }
+
+  .hero-state {
+    max-width: min(30rem, 100%);
+    gap: var(--space-sm);
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-cinematic {
+    --hero-travel: 210vh;
+  }
+
+  /* Full-bleed on phones: the scene gets the whole width, the type the space
+     below it, and the black page reads as the film's surround. */
+  .hero-cinematic__media {
+    padding-inline: 0;
+    padding-bottom: 46vh;
+  }
+
+  .hero-cinematic__video {
+    object-position: center top;
+  }
+
+  .hero-state__copy {
+    max-width: 30ch;
+  }
+
+  .hero-state__cta {
+    min-height: 44px; /* comfortable tap target over the footage */
+  }
+}

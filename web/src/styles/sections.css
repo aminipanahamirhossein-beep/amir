@@ -210,45 +210,7 @@
   margin-top: clamp(1.75rem, 3vw, 2.75rem);
 }
 
-/* ------------------------------------------------------------------ hero */
-
-.hero {
-  padding-block: clamp(2.25rem, 4.5vw, 4rem) var(--section-gap);
-  scroll-margin-top: var(--header-height);
-}
-
-.hero__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 30%) minmax(0, 1fr);
-  gap: var(--grid-gap);
-  align-items: start;
-}
-
-.hero__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  padding-top: clamp(0.5rem, 3vw, 2.5rem);
-}
-
-.hero__title {
-  font-size: var(--fs-display);
-  font-weight: 300;
-  line-height: var(--lh-display);
-  letter-spacing: -0.02em;
-}
-
-.hero__title span {
-  display: block;
-}
-
-.hero__paragraph {
-  max-width: 32ch;
-}
-
-.hero__figure {
-  aspect-ratio: 16 / 10;
-}
+/* The hero is a scroll-driven film, styled in styles/hero.css. */
 
 /* ----------------------------------------------------------------- about */
 
@@ -515,23 +477,6 @@
     grid-template-columns: 1fr auto;
   }
 
-  .hero__grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-lg);
-  }
-
-  .hero__content {
-    padding-top: 0;
-  }
-
-  .hero__title {
-    max-width: 18ch;
-  }
-
-  .hero__figure {
-    aspect-ratio: 16 / 10;
-  }
-
   .projects__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     row-gap: var(--space-xl);
@@ -572,10 +517,6 @@
 
   .about__stats {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .hero__figure {
-    aspect-ratio: 4 / 3;
   }
 
   .projects__grid {

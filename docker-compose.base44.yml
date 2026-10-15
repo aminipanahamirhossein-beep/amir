@@ -1,0 +1,106 @@
+# Base44 development environment for the ATELIER website.
+#
+# Two app services run straight from the cloned source (bind-mounted, watched):
+#   web  – Vite dev server, published on host port 3000 (the preview entry point)
+#   api  – Express contact API, reached from the browser through the Vite proxy
+#          at /api, so the frontend and API share one origin.
+#
+# Dependencies are installed on container start (lockfile-preserving) into named
+# volumes, so source edits never trigger an image rebuild.
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: atelier
+      POSTGRES_PASSWORD: atelier_dev_password
+      POSTGRES_DB: atelier
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U atelier -d atelier']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: on-failure
+
+  api:
+    image: node:22
+    working_dir: /app
+    env_file:
+      - ./.env.base44-defaults
+      - /run/base44/app.env
+    environment:
+      - NODE_ENV=development
+      - PORT=8000
+      # Local infrastructure credentials are generated here, never secrets.
+      - DATABASE_URL=postgres://atelier:atelier_dev_password@db:5432/atelier
+      - BASE44_PREVIEW_MODE
+    volumes:
+      - ./api:/app
+      - api-node-modules:/app/node_modules
+    command:
+      - sh
+      - -ec
+      - npm ci --no-audit --no-fund && exec npm run dev
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      # Probes the API's own root resource, so it reflects real responsiveness.
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:8000/').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    restart: on-failure
+
+  web:
+    image: node:22
+    working_dir: /app
+    env_file:
+      - ./.env.base44-defaults
+      - /run/base44/app.env
+    environment:
+      - NODE_ENV=development
+      - BASE44_PREVIEW_MODE
+      # The platform's hostname allowlist for the preview proxy (Vite 6.1+).
+      - __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS
+      - VITE_API_PROXY_TARGET=http://api:8000
+    ports:
+      - '3000:5173'
+    volumes:
+      - ./web:/app
+      - web-node-modules:/app/node_modules
+    command:
+      - sh
+      - -ec
+      - npm ci --no-audit --no-fund && exec npm run dev -- --host 0.0.0.0 --port 5173
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:5173/').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
+    restart: on-failure
+
+volumes:
+  db-data:
+  api-node-modules:
+  web-node-modules:

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+build/
+
+# Local environment overrides. The committed defaults file is intentionally
+# tracked so every checkout can boot the compose stack.
+.env
+.env.*
+!.env.base44-defaults
+
+*.log
+.DS_Store
+.DS_Store?

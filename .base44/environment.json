@@ -1,0 +1,37 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d --build",
+  "secrets": [
+    {
+      "name": "CONTACT_NOTIFICATION_EMAIL",
+      "description": "Optional. Address that should receive contact-form notifications. Without it, submissions are still stored in the database.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "SMTP_HOST",
+      "description": "Optional. SMTP relay host used to email contact-form notifications.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "SMTP_PORT",
+      "description": "Optional. SMTP relay port (defaults to 587).",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "SMTP_USER",
+      "description": "Optional. SMTP username for the relay.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "SMTP_PASSWORD",
+      "description": "Optional. SMTP password or API key for the relay.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "SMTP_FROM",
+      "description": "Optional. From address used on notification emails.",
+      "requiredAtBoot": false
+    }
+  ]
+}
